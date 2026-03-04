@@ -1,25 +1,26 @@
 {
   "version": 2,
-  "name": "jailex-streaming-app",
+  "name": "jailex-studios-hub",
   "cleanUrls": true,
   "trailingSlash": false,
+  "framework": null,
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1.js"
+    },
+    {
+      "src": "/overlay",
+      "dest": "/overlay.html"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
+    }
+  ],
   "functions": {
     "api/**/*.js": {
       "maxDuration": 10
     }
-  },
-  "rewrites": [
-    {
-      "source": "/api",
-      "destination": "/api/index.js"
-    },
-    {
-      "source": "/twitch",
-      "destination": "/api/twitch.js"
-    },
-    {
-      "source": "/kick",
-      "destination": "/api/kick.js"
-    }
-  ]
+  }
 }

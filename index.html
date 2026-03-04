@@ -3,282 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jailex | The Ultimate All-in-One Streaming Utility</title>
-    
-    <script>
-        if (window.location.hash.includes("access_token") && !window.location.pathname.includes("app.html")) {
-            window.location.href = window.location.origin + window.location.pathname + "app.html" + window.location.hash;
-        }
-    </script>
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;700;900&display=swap">
+    <title>JAILEX STUDIOS - Main Control Hub</title>
+    <script src="https://cdn.bundlejs.com/tmi.js@1.8.5"></script>
     <style>
-        :root { 
-            --blue: #00E5FF; 
-            --blue-glow: rgba(0, 229, 255, 0.4);
-            --dark: #050914; 
-            --glass: rgba(10, 15, 30, 0.65); 
-            --bears-orange: #C83803; 
-            --grid-line: rgba(0, 229, 255, 0.04);
-        }
-        
-        body { 
-            background-color: var(--dark); 
-            background-image: 
-                linear-gradient(var(--grid-line) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-            background-size: 40px 40px;
-            color: #e0e6ed; 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            overflow-x: hidden;
-            scroll-behavior: smooth;
+        /* JAILEX STUDIOS MAIN HUB - PC DESKTOP VERSION */
+        :root {
+            --bg-dark: #05070a;
+            --panel-bg: #10141b;
+            --accent-blue: #00d2ff;
+            --accent-green: #00ff88;
+            --accent-purple: #9146ff; /* Twitch Purple */
+            --text-main: #e0e6ed;
+            --border-color: #1f2937;
         }
 
-        /* NAVIGATION */
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 50px;
-            background: rgba(5, 9, 20, 0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 229, 255, 0.15);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-sizing: border-box;
-        }
-
-        .logo h1 {
-            font-family: 'Orbitron';
-            color: var(--blue);
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            letter-spacing: 6px;
-            font-size: 28px;
-            text-shadow: 0 0 15px var(--blue-glow);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .nav-links a {
-            color: #8a9bb3;
-            text-decoration: none;
-            margin: 0 20px;
-            font-weight: 700;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s;
-        }
-
-        .nav-links a:hover { color: #fff; }
-
-        .btn-launch {
-            background: rgba(0, 229, 255, 0.1);
-            border: 1px solid var(--blue);
-            color: var(--blue);
-            padding: 10px 24px;
-            font-family: 'Inter';
-            font-weight: 900;
-            border-radius: 6px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
-        }
-
-        .btn-launch:hover {
-            background: var(--blue);
-            color: var(--dark);
-            box-shadow: 0 0 20px var(--blue-glow);
-        }
-
-        /* HERO SECTION */
-        .hero {
+        /* Sidebar Navigation */
+        nav {
+            width: 80px;
+            background: #000;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-            padding: 0 20px;
-            margin-top: 60px;
+            padding-top: 20px;
+            border-right: 1px solid var(--border-color);
         }
 
-        .hero h2 {
-            font-family: 'Orbitron';
-            font-size: 54px;
-            color: #fff;
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--panel-bg);
+            border-radius: 8px;
             margin-bottom: 20px;
-            letter-spacing: 2px;
-            max-width: 900px;
-            line-height: 1.2;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
         }
 
-        .hero h2 span {
-            color: var(--blue);
-            text-shadow: 0 0 20px var(--blue-glow);
-        }
-
-        .hero p {
-            font-size: 18px;
-            color: #b0c4de;
-            max-width: 700px;
-            line-height: 1.6;
-            margin-bottom: 40px;
-        }
-
-        /* FEATURES GRID */
-        .features {
-            padding: 100px 50px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            text-align: center;
-            font-family: 'Orbitron';
-            color: var(--blue);
-            font-size: 36px;
-            margin-bottom: 60px;
-            letter-spacing: 3px;
-        }
-
-        .grid {
+        /* Main Content Area */
+        main {
+            flex-grow: 1;
+            padding: 30px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
+            grid-template-columns: 2fr 1fr;
+            grid-gap: 20px;
         }
 
-        .card {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 229, 255, 0.15);
-            padding: 40px;
+        .panel {
+            background: var(--panel-bg);
             border-radius: 12px;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 20px rgba(0, 229, 255, 0.05);
-        }
-
-        .card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 50px; height: 3px;
-            background: var(--blue); box-shadow: 0 0 12px var(--blue-glow);
-        }
-
-        .card.premium::before {
-            background: var(--bears-orange); box-shadow: 0 0 12px rgba(200, 56, 3, 0.6);
-        }
-
-        .card h3 {
-            font-family: 'Orbitron';
-            color: var(--blue);
-            font-size: 22px;
+        h1, h2 {
             margin-top: 0;
-            margin-bottom: 15px;
-        }
-
-        .card.premium h3 { color: var(--bears-orange); }
-
-        .card p {
-            color: #8a9bb3;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        /* FOOTER */
-        footer {
-            text-align: center;
-            padding: 60px 20px;
-            background: rgba(5, 9, 20, 0.95);
-            border-top: 1px solid rgba(0, 229, 255, 0.1);
-            font-family: 'Orbitron';
-            font-size: 11px;
-            color: var(--blue);
+            text-transform: uppercase;
             letter-spacing: 2px;
-            opacity: 0.8;
-            line-height: 2;
+            color: var(--accent-blue);
         }
 
-        footer a {
-            color: var(--blue);
-            text-decoration: none;
-            border-bottom: 1px solid transparent;
-            transition: 0.3s;
+        /* Console Status Indicators */
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            min-width: 100px;
+            font-size: 0.8rem;
             font-weight: bold;
         }
 
-        footer a:hover {
-            border-bottom: 1px solid var(--blue);
+        .indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background: #444;
         }
 
+        .online { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
+        .twitch-online { background: var(--accent-purple); box-shadow: 0 0 10px var(--accent-purple); }
+
+        /* Control Buttons */
+        .btn {
+            background: var(--accent-blue);
+            color: #000;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            filter: brightness(1.2);
+            transform: translateY(-2px);
+        }
+
+        /* Log / Console Output */
+        #console-log {
+            background: #000;
+            flex-grow: 1;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: var(--accent-green);
+            overflow-y: auto;
+            border: 1px solid #333;
+            min-height: 400px;
+        }
+
+        .chat-msg { color: #fff; margin-bottom: 5px; }
+        .chat-user { color: var(--accent-blue); font-weight: bold; }
+        .sys-msg { color: #888; font-style: italic; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="logo">
-            <h1>JAILEX</h1>
-        </div>
-        <div class="nav-links">
-            <a href="#features">The Engines</a>
-            <a href="#console">Xbox and Playstation Ready</a>
-            <a href="#pro">Pro Tier</a>
-        </div>
-        <a href="app.html" target="_blank" class="btn-launch">LAUNCH HUD</a>
+        <div class="nav-icon" title="Dashboard"></div>
+        <div class="nav-icon" title="Settings"></div>
+        <div class="nav-icon" title="Overlay"></div>
     </nav>
 
-    <div class="hero">
-        <h2>One Unified Platform. <br><span>Zero Setup Friction.</span></h2>
-        <p>Stop juggling 5 different apps for chat, overlays, TTS, and bots. Jailex is the all-in-one streaming utility built to empower Twitch, Kick, and Console creators to go live with professional-grade tools in seconds.</p>
-        <div style="display:flex; gap:20px;">
-            <a href="app.html" target="_blank" class="btn-launch" style="padding: 18px 40px; font-size: 18px;">TRY THE BETA NOW</a>
-        </div>
-    </div>
+    <main>
+        <section style="display: flex; flex-direction: column;">
+            <div class="panel" style="flex-grow: 1;">
+                <h1>JAILEX STUDIOS HUB</h1>
+                
+                <div class="status-row">
+                    <div class="status-badge">
+                        <span id="twitch-ind" class="indicator"></span> TWITCH
+                    </div>
+                    <div class="status-badge">
+                        <span id="kick-ind" class="indicator"></span> KICK
+                    </div>
+                    <div class="status-badge">
+                        <span id="api-ind" class="indicator"></span> API
+                    </div>
+                </div>
 
-    <div id="features" class="features">
-        <h2 class="section-title">PROPRIETARY ENGINES</h2>
-        <div class="grid">
-            <div class="card">
-                <h3>QuickSync Engine</h3>
-                <p>Instant, zero-setup onboarding. Ditch API keys and tokens. Simply enter your Twitch or Kick username and our QuickSync bridge auto-configures your chat, overlays, and permissions instantly.</p>
+                <h2>Live System Log</h2>
+                <div id="console-log">
+                    <div class="sys-msg">[SYSTEM] Jailex Main Hub Initializing...</div>
+                </div>
             </div>
-            <div class="card">
-                <h3>EngineMaster TTS</h3>
-                <p>The only dual-platform, ultra-low-latency TTS system built natively for both Twitch and Kick workflows. Utilizing local system hardware, it provides crystal clear voices with zero delay.</p>
-            </div>
-            <div id="console" class="card">
-                <h3>Xbox and Playstation First</h3>
-                <p>Built perfectly for cloud-based setups like Lightstream. Get the same powerful overlays, chat bridging, and voice engines that PC streamers use, without needing a high-end desktop.</p>
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <div id="pro" class="features" style="padding-top: 20px; padding-bottom: 100px;">
-        <h2 class="section-title" style="color: var(--bears-orange);">THE JAILEX ADVANTAGE</h2>
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
-            <div class="card">
-                <h3>Unified Chat & Audit</h3>
-                <p>Monitor your Twitch and Kick audiences side-by-side in one streamlined command center. Built-in system diagnostics ensure you never miss a message, while automated voice triggers handle engagement.</p>
-            </div>
-            <div class="card premium">
-                <h3>Bot Posting As Streamer <span style="font-size: 10px; background: rgba(200, 56, 3, 0.2); padding: 4px 8px; border-radius: 4px; vertical-align: middle; margin-left: 10px;">PRO TIER</span></h3>
-                <p>Maintain your brand's integrity. Unlike competitor platforms that use generic bot accounts, our premium engine ensures automated messages appear as your own verified channel account.</p>
-            </div>
-        </div>
-    </div>
+        <section>
+            <div class="panel">
+                <h2>Quick Actions</h2>
+                <button class="btn" onclick="connectTwitch()">Connect Twitch Chat</button>
+                <button class="btn" onclick="testTTS()">Test Voice (TTS)</button>
+                <a href="/overlay" target="_blank" style="text-decoration: none;">
+                    <button class="btn" style="background: #58a6ff;">Launch Overlay</button>
+                </a>
 
-    <footer>
-        COPYRIGHT &copy; 2026 JAILEX STUDIOS. ALL RIGHTS RESERVED.<br>
-        <a href="mailto:jailexstudios@gmail.com" style="margin-top: 10px; display: inline-block;">CONTACT US: JAILEXSTUDIOS@GMAIL.COM</a>
-    </footer>
+                <div style="margin-top: 30px;">
+                    <h3>Stream Config</h3>
+                    <p style="font-size: 0.8rem; color: #8b949e;">
+                        Platform: Xbox Console<br>
+                        Channel: <strong>justquitbro7</strong><br>
+                        Audio: Browser TTS Enabled
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
 
+    <script>
+        const log = document.getElementById('console-log');
+        const twitchInd = document.getElementById('twitch-ind');
+        const apiInd = document.getElementById('api-ind');
+        
+        function writeToLog(msg, type = 'sys') {
+            const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' });
+            let content = '';
+            
+            if (type === 'chat') {
+                content = `<div class="chat-msg">[${time}] <span class="chat-user">${msg.user}:</span> ${msg.text}</div>`;
+            } else {
+                content = `<div class="sys-msg">[${time}] [SYSTEM] ${msg}</div>`;
+            }
+            
+            log.innerHTML += content;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // 1. Connect to Twitch Chat
+        function connectTwitch() {
+            writeToLog("Attempting to bridge Twitch Chat...");
+            
+            const client = new tmi.Client({
+                channels: [ 'justquitbro7' ]
+            });
+
+            client.connect().catch(console.error);
+
+            client.on('connected', () => {
+                writeToLog("Twitch Bridge: ESTABLISHED");
+                twitchInd.className = "indicator twitch-online";
+            });
+
+            client.on('message', (channel, tags, message, self) => {
+                if (self) return;
+                
+                // Print to console
+                writeToLog({ user: tags['display-name'], text: message }, 'chat');
+                
+                // Optional: Trigger TTS for every message
+                const utterance = new SpeechSynthesisUtterance(`${tags['display-name']} says ${message}`);
+                window.speechSynthesis.speak(utterance);
+            });
+        }
+
+        // 2. Test Main API
+        async function testSystem() {
+            try {
+                const res = await fetch('/api');
+                const data = await res.json();
+                if(data.status === "online") {
+                    apiInd.className = "indicator online";
+                    writeToLog("Main API Status: NOMINAL");
+                }
+            } catch (err) {
+                writeToLog("API Error: Check deployment status.");
+            }
+        }
+
+        // 3. Test Voice Output
+        async function testTTS() {
+            const utterance = new SpeechSynthesisUtterance("System check successful. Jailex voice engine is operational.");
+            window.speechSynthesis.speak(utterance);
+            writeToLog("Voice Test: Outputting audio...");
+        }
+
+        // Run connectivity check on startup
+        testSystem();
+    </script>
 </body>
 </html>

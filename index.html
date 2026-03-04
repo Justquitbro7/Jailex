@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAILEX STUDIOS - Hub v1.1.0</title>
+    <title>JAILEX STUDIOS - Hub v1.1.3</title>
     <script src="https://cdn.bundlejs.com/tmi.js@1.8.5"></script>
     <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
     <style>
@@ -27,7 +27,7 @@
         
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         h1 { margin: 0; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-blue); font-size: 1.2rem; }
-        .version-tag { background: #1f2937; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; color: #8b949e; font-family: monospace; }
+        .version-tag { background: #1f2937; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; color: var(--accent-green); font-family: monospace; border: 1px solid var(--accent-green); }
         
         .status-row { display: flex; gap: 10px; margin-bottom: 20px; }
         .status-badge { background: #000; padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.7rem; font-weight: bold; flex: 1; text-align: center; }
@@ -39,7 +39,7 @@
         .btn:hover { filter: brightness(1.2); }
         .btn-kick { background: var(--accent-kick); }
 
-        #console-log { background: #000; flex-grow: 1; border-radius: 8px; padding: 15px; font-family: monospace; font-size: 0.85rem; color: var(--accent-green); overflow-y: auto; border: 1px solid #333; min-height: 350px; line-height: 1.4; }
+        #console-log { background: #000; flex-grow: 1; border-radius: 8px; padding: 15px; font-family: monospace; font-size: 0.85rem; color: #00ff88; overflow-y: auto; border: 1px solid #333; min-height: 350px; line-height: 1.4; }
         .chat-msg { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 2px; }
         .user-twitch { color: var(--accent-purple); font-weight: bold; }
         .user-kick { color: var(--accent-kick); font-weight: bold; }
@@ -55,14 +55,14 @@
             <div class="panel" style="flex-grow: 1;">
                 <div class="header-row">
                     <h1>JAILEX STUDIOS HUB</h1>
-                    <span class="version-tag">v1.1.0</span>
+                    <span class="version-tag">V1.1.3</span>
                 </div>
                 <div class="status-row">
                     <div class="status-badge"><span id="t-ind" class="indicator"></span> TWITCH</div>
                     <div class="status-badge"><span id="k-ind" class="indicator"></span> KICK</div>
                 </div>
                 <div id="console-log">
-                    <div class="sys-msg">[SYSTEM] Command Center Ready. Check version tag: v1.1.0</div>
+                    <div class="sys-msg">[SYSTEM] Command Center Online. Awaiting Build v1.1.3 Confirmation...</div>
                 </div>
             </div>
         </section>
@@ -70,14 +70,14 @@
         <section>
             <div class="panel">
                 <h2>Stream Controls</h2>
-                <button class="btn" onclick="startAllChats()">Connect All Chats</button>
+                <button class="btn" onclick="startAllChats()">Engage Bridges</button>
                 <button class="btn btn-kick" onclick="testVoice()">Test TTS Voice</button>
                 
                 <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 20px;">
                     <p style="font-size: 0.75rem; color: #8b949e;">
                         User: <strong>justquitbro7</strong><br>
                         Audio: Browser-Level TTS<br>
-                        Status: <span id="master-status">Standby</span>
+                        Status: <span id="master-status" style="color:var(--accent-green)">READY</span>
                     </p>
                 </div>
             </div>
@@ -89,15 +89,18 @@
         const channelName = "justquitbro7";
         
         function jailexSpeak(name, message, platform) {
+            window.speechSynthesis.cancel(); // Clears previous queue
             const cleanMessage = message.replace(/(?:https?|ftp):\/\/[\n\S]+/g, 'link');
             const speechText = `${name} on ${platform} says: ${cleanMessage}`;
             const utterance = new SpeechSynthesisUtterance(speechText);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
             window.speechSynthesis.speak(utterance);
         }
 
         function writeToLog(content, type = 'sys') {
             const div = document.createElement('div');
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
             if (type === 'sys') {
                 div.className = 'sys-msg';
                 div.innerHTML = `[${time}] [SYSTEM] ${content}`;
@@ -111,10 +114,11 @@
         }
 
         function initTwitch() {
+            writeToLog("Initializing Twitch Uplink...");
             const client = new tmi.Client({ channels: [channelName] });
             client.connect().then(() => {
                 document.getElementById('t-ind').className = "indicator online-twitch";
-                writeToLog("Twitch connected.");
+                writeToLog("SUCCESS: Twitch Uplink Connected.");
             });
             client.on('message', (chan, tags, msg, self) => {
                 if (self) return;
@@ -124,15 +128,16 @@
         }
 
         async function initKick() {
-            writeToLog("Initiating Kick Bridge...");
+            writeToLog("Initiating Kick Direct Bridge...");
             try {
-                // Fetching the Chatroom ID through a proxy-safe method
+                // Fetching the public chatroom ID for justquitbro7
                 const res = await fetch(`https://kick.com/api/v1/channels/${channelName.toLowerCase()}`);
                 const data = await res.json();
-                const chatroomId = data.chatroom.id;
+                const chatId = data.chatroom.id;
 
+                // Connecting via Public Pusher Key (No token required)
                 const pusher = new Pusher('eb1d5f201c100062d98c', { cluster: 'mt1', forceTLS: true });
-                const channel = pusher.subscribe(`chatrooms.${chatroomId}.v2`);
+                const channel = pusher.subscribe(`chatrooms.${chatId}.v2`);
                 
                 channel.bind('App\\Events\\ChatMessageEvent', function(data) {
                     writeToLog({ user: data.sender.username, text: data.content }, 'kick');
@@ -140,21 +145,21 @@
                 });
 
                 document.getElementById('k-ind').className = "indicator online-kick";
-                writeToLog("Kick connected via Pusher.");
+                writeToLog("SUCCESS: Kick Direct Bridge Connected.");
             } catch (err) {
-                writeToLog("Kick Bridge failed. Retrying...");
-                console.error(err);
+                writeToLog("KICK ERROR: Bridge blocked. Retrying...", "sys");
             }
         }
 
         function startAllChats() {
-            document.getElementById('master-status').textContent = "RUNNING";
+            document.getElementById('master-status').textContent = "ENGAGED";
+            writeToLog("Engaging Bridges...");
             initTwitch();
             initKick();
         }
 
         function testVoice() {
-            jailexSpeak("System", "Jailex version one point one point zero is operational.", "Internal");
+            jailexSpeak("System", "Jailex version one point one point three is ready for action.", "Internal");
         }
     </script>
 </body>

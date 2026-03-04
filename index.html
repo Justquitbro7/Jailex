@@ -1,23 +1,146 @@
-Kick Logo
-BotRix wants to access your Kick Account
-This will allow BotRix to
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAILEX STUDIOS - Kick Authentication v1.2.0</title>
+    <style>
+        :root {
+            --bg-dark: #05070a;
+            --panel-bg: #10141b;
+            --accent-kick: #53fc18;
+            --accent-blue: #00d2ff;
+            --text-main: #e0e6ed;
+            --border-color: #1f2937;
+        }
 
-Write to Chat feed
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+            height: 100vh; 
+        }
+        
+        .login-panel { 
+            background: var(--panel-bg); 
+            border-radius: 12px; 
+            border: 1px solid var(--border-color); 
+            padding: 40px; 
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8); 
+        }
 
-Read channel information
+        .header-row { margin-bottom: 20px; }
+        h1 { margin: 0; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-blue); font-size: 1.5rem; }
+        .version-tag { background: #1f2937; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; color: var(--accent-blue); font-family: monospace; }
 
-Read user information (including email address)
+        p { color: #8b949e; font-size: 0.95rem; margin-bottom: 30px; line-height: 1.5; }
 
-Subscribe to events (read chat feed, follows, subscribes, gifts)
+        /* The Official-Looking Kick Button */
+        .btn-kick { 
+            display: block;
+            background: var(--accent-kick); 
+            color: #000; 
+            text-decoration: none;
+            border: none; 
+            padding: 16px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            cursor: pointer; 
+            width: 100%; 
+            font-size: 1.1rem; 
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            box-shadow: 0 0 10px rgba(83, 252, 24, 0.2);
+        }
 
-Update channel information
+        .btn-kick:hover { 
+            filter: brightness(1.2); 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(83, 252, 24, 0.4);
+        }
 
-Execute moderation actions for moderators
+        #success-screen { display: none; }
+        .success-box {
+            background: rgba(83, 252, 24, 0.1);
+            border: 1px solid var(--accent-kick);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            color: var(--accent-kick);
+            font-family: monospace;
+            text-align: left;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
 
-Read KICKs related information (leaderboards, etc.)
+    <div class="login-panel" id="main-panel">
+        <div class="header-row">
+            <h1>JAILEX STUDIOS</h1>
+            <span class="version-tag">BUILD v1.2.0</span>
+        </div>
+        
+        <div id="login-screen">
+            <p>To enable live chat routing and overlay functionality for <strong>justquitbro7</strong>, Jailex requires official authorization.</p>
+            
+            <a href="#" id="kick-login-btn" class="btn-kick">Link Kick Account</a>
+        </div>
 
-Read Channel points rewards information on a channel
+        <div id="success-screen">
+            <h2 style="color: var(--accent-kick); margin-top: 0;">AUTHORIZATION SECURED</h2>
+            <p>Jailex is now officially linked to your Kick account.</p>
+            <div class="success-box" id="token-display">
+                [SYSTEM] Extracting access token...
+            </div>
+        </div>
+    </div>
 
-Read, add, edit and delete Channel points rewards on a channel
-Make sure you trust BotRix, you may be sharing sensitive information about your Kick Account. You can revoke access to BotRix via 'Connections' in your account settings at any time.
-Logged in as justquitbro7
+    <script>
+        // Your specific Kick Application Data
+        const KICK_CLIENT_ID = "01KJRKQFH1KKG6MT9C3GC22PDW"; 
+        const REDIRECT_URI = "https://jailex.vercel.app";
+        
+        const loginBtn = document.getElementById('kick-login-btn');
+        const loginScreen = document.getElementById('login-screen');
+        const successScreen = document.getElementById('success-screen');
+        const tokenDisplay = document.getElementById('token-display');
+
+        // Build the official Kick OAuth Authorization URL
+        const kickAuthUrl = `https://kick.com/oauth/authorize?response_type=token&client_id=${KICK_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=user:read+chat:write`;
+
+        // Attach the URL to the button
+        loginBtn.href = kickAuthUrl;
+
+        // Check if the URL has the token (Meaning Kick sent you back successfully)
+        window.onload = function() {
+            const hash = window.location.hash;
+            
+            if (hash && hash.includes("access_token")) {
+                // Hide the login button, show the success screen
+                loginScreen.style.display = "none";
+                successScreen.style.display = "block";
+                
+                // Extract the token to verify it worked
+                const urlParams = new URLSearchParams(hash.replace('#', '?'));
+                const accessToken = urlParams.get('access_token');
+                
+                if (accessToken) {
+                    tokenDisplay.innerHTML = `[SYSTEM] Uplink Established.<br><br>Token Status: ACTIVE<br>Length: ${accessToken.length} characters.<br><br>Ready to initialize Command Center.`;
+                    
+                    // Save the token to the browser's memory so the Hub can use it later
+                    localStorage.setItem('kick_access_token', accessToken);
+                }
+            }
+        };
+    </script>
+</body>
+</html>

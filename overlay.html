@@ -2,131 +2,131 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Jailex Overlay Lightstream-Safe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jailex Stream Overlay - justquitbro7</title>
     <style>
-        body { background: transparent; color: white; font-family: sans-serif; overflow: hidden; margin: 0; padding: 25px; display: flex; align-items: flex-end; justify-content: flex-start; height: 100vh; box-sizing: border-box; }
-        
-        #chat-container { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px;
-            width: 450px;
-            max-height: 90vh;
+        /* JAILEX OVERLAY STYLES
+        Optimized for Xbox/Lightstream 1080p output.
+        */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: transparent; /* Makes the background invisible in Lightstream */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
-        .msg { 
-            /* Bears Navy with Dynamic Transparency */
-            background: rgba(6, 14, 26, var(--bg-alpha)); 
-            border-left: 6px solid #C83803; /* Bears Orange */
-            padding: 12px 18px; 
-            border-radius: 0 12px 12px 0; 
-            width: fit-content;
-            max-width: 90%;
-            font-size: var(--fs);
-            /* Reduced shadow complexity for better performance */
-            box-shadow: 2px 4px 10px rgba(0,0,0,0.3);
-            /* Hardware acceleration for smooth animation */
-            will-change: transform, opacity;
-            animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        #overlay-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-50px); }
-            to { opacity: 1; transform: translateX(0); }
+        /* Top Bar for Alerts */
+        #alert-box {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 30px;
+            border-radius: 50px;
+            border: 2px solid #00e6e6; /* Cyan Glow */
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: none; /* Hidden until an alert happens */
         }
 
-        .user { font-weight: bold; color: #00d2ff; font-size: 0.8em; margin-bottom: 3px; display: block; text-transform: uppercase; }
-        .platform { font-size: 0.7em; margin-right: 5px; opacity: 0.7; color: #fff; }
+        /* Bottom Left Chat */
+        #chat-container {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 350px;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .chat-message {
+            margin-bottom: 8px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: #00e6e6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* API Status Indicator (Bottom Right) */
+        #status-indicator {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body>
-    <div id="chat-container"></div>
+
+    <div id="overlay-container">
+        <div id="alert-box">NEW FOLLOWER!</div>
+
+        <div id="chat-container">
+            <div class="chat-message"><span class="user-name">Jailex:</span> System Online. Waiting for stream...</div>
+        </div>
+
+        <div id="status-indicator">API STATUS: <span id="api-state">CONNECTING...</span></div>
+    </div>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const twitchChannel = params.get('twitch') || 'justquitbro7';
-        const kickId = params.get('kick') || '92474944';
-        const fontSize = params.get('size') || '22';
-        const stayTime = (params.get('stay') || '20') * 1000;
-        const bgOpacity = params.get('alpha') || '0.9'; // Default 90% solid
-
-        // Apply URL parameters to CSS variables
-        document.documentElement.style.setProperty('--fs', fontSize + 'px');
-        document.documentElement.style.setProperty('--bg-alpha', bgOpacity);
-
-        function addMessage(user, message, platform) {
-            const container = document.getElementById('chat-container');
-            
-            // PERFORMANCE FIX: Prevent DOM overload by removing oldest messages
-            if (container.children.length > 20) {
-                container.removeChild(container.firstChild);
+        /**
+         * JAILEX OVERLAY LOGIC
+         * This script connects to your /api folder to get data.
+         */
+        
+        async function checkApiStatus() {
+            const statusLabel = document.getElementById('api-state');
+            try {
+                // Fetching from your new API folder
+                const response = await fetch('/api');
+                const data = await response.json();
+                
+                if (data.status === "online") {
+                    statusLabel.textContent = "ONLINE";
+                    statusLabel.style.color = "#00ff00";
+                    console.log("Jailex API is connected!");
+                }
+            } catch (error) {
+                statusLabel.textContent = "OFFLINE";
+                statusLabel.style.color = "#ff0000";
+                console.log("API Connection Error:", error);
             }
-
-            const div = document.createElement('div');
-            div.className = 'msg';
-            
-            // Set platform colors
-            let pColor = platform === 'Twitch' ? '#9146FF' : '#53FC18';
-            if (platform === 'INFO') pColor = '#00d2ff';
-
-            div.innerHTML = '<div class="user" style="color:' + pColor + '"><span class="platform">[' + platform + ']</span>' + user + '</div>' +
-                            '<div>' + message + '</div>';
-            
-            // Append to the bottom so it grows UP
-            container.appendChild(div);
-            
-            // Auto-remove with hardware accelerated transition
-            setTimeout(function() {
-                div.style.opacity = '0';
-                div.style.transform = 'translateX(-20px)';
-                setTimeout(function() { 
-                    if(div.parentNode) div.remove(); 
-                }, 500);
-            }, stayTime);
         }
 
-        // TWITCH DIRECT CONNECT
-        function connectTwitch() {
-            var tws = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
-            tws.onopen = function() {
-                tws.send('PASS ignore');
-                tws.send('NICK justinfan' + Math.floor(Math.random()*999));
-                tws.send('JOIN #' + twitchChannel.toLowerCase());
-            };
-            tws.onmessage = function(e) {
-                if(e.data.includes('PRIVMSG')) {
-                    var u = e.data.split('!')[0].substring(1);
-                    var m = e.data.substring(e.data.indexOf(':', 1) + 1);
-                    addMessage(u, m, 'Twitch');
-                }
-                if(e.data.includes('PING')) tws.send('PONG :tmi.twitch.tv');
-            };
-            tws.onclose = function() { setTimeout(connectTwitch, 5000); };
+        // Run status check when the overlay starts
+        checkApiStatus();
+
+        // Optional: Function to show a test alert
+        function showTestAlert(message) {
+            const alertBox = document.getElementById('alert-box');
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
         }
-
-        // KICK DIRECT CONNECT
-        function connectKick() {
-            var kws = new WebSocket('wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=7.6.0');
-            kws.onopen = function() {
-                kws.send(JSON.stringify({ event: "pusher:subscribe", data: { channel: "chatrooms." + kickId + ".v2" } }));
-                setInterval(function() { kws.send(JSON.stringify({event:"pusher:ping",data:{}})); }, 20000);
-            };
-            kws.onmessage = function(e) {
-                var d = JSON.parse(e.data);
-                if (d.event === "App\\Events\\ChatMessageEvent") {
-                    var msg = JSON.parse(d.data);
-                    addMessage(msg.sender.username, msg.content, 'Kick');
-                }
-            };
-            kws.onclose = function() { setTimeout(connectKick, 5000); };
-        }
-
-        connectTwitch();
-        connectKick();
-
-        // System Start Message
-        setTimeout(function() { addMessage('SYSTEM', 'Jailex v1.3.0 Loaded & Optimized!', 'INFO'); }, 2000);
     </script>
 </body>
 </html>
